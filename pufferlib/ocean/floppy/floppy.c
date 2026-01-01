@@ -117,6 +117,7 @@ void UpdateGame(GameEnv *env)
                     env->gamestate.superfx = true;
 
                     if (env->log.score > env->log.hiScore) env->log.hiScore = env->log.score;
+                    //c_step(env); 
                 }
             }
         }
@@ -193,7 +194,7 @@ void _game_init(GameEnv *env, int num_envs)
     //initialize game state 
     env->gamestate.gameOver = false; 
     env->gamestate.pause = false; 
-    env->log = {0};
+    env->log = (typeof(env->log)){0};
     env->log.hiScore = 0; 
     printf("Starting value for score is -> %d and hiScore is -> %d\r\n", env->log.score , env->log.hiScore); 
 
@@ -206,7 +207,5 @@ void _game_init(GameEnv *env, int num_envs)
     env->gamestate.superfx = false; 
     env->goal = 0;     
 
-
-    env->log = (Log*)(calloc(1, sizeof(Log))); 
     env->observations = (float*)(calloc(1,sizeof(float))); 
 }

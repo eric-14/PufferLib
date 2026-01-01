@@ -90,7 +90,7 @@ static const int screenHeight = 450;
 
 void freemem(GameEnv *env)
 {
-    free(env->log); 
+    // free(env->log); 
     free(env->observations); 
 }
 
@@ -112,7 +112,7 @@ void c_reset (GameEnv *env)
     
     env->tubesSpeedx = 0; 
     env->gamestate.superfx = false; 
-    env->log = {0};
+    env->log = (Log){0};
 
 }
 
