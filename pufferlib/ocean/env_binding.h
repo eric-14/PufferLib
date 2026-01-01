@@ -2,7 +2,7 @@
 #include <numpy/arrayobject.h>
 
 // Forward declarations for env-specific functions supplied by user
-static int my_log(PyObject* dict, Env* env);
+static int my_log(PyObject* dict, Log* env);
 static int my_init(Env* env, PyObject* args, PyObject* kwargs);
 
 static PyObject* my_shared(PyObject* self, PyObject* args, PyObject* kwargs);
@@ -569,6 +569,7 @@ static PyObject* vec_log(PyObject* self, PyObject* args) {
 
     // Iterates over logs one float at a time. Will break
     // horribly if Log has non-float data.
+   // Log aggregate = {0};
     Log aggregate = {0};
     int num_keys = sizeof(Log) / sizeof(float);
     for (int i = 0; i < vec->num_envs; i++) {

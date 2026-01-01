@@ -62,7 +62,7 @@ typedef struct GameState {
 
 
 typedef struct GameEnv {
-    Log *log; 
+    Log log; 
     float *observations; 
     int *actions; 
     float *rewards; 
@@ -112,6 +112,7 @@ void c_reset (GameEnv *env)
     
     env->tubesSpeedx = 0; 
     env->gamestate.superfx = false; 
+    env->log = {0};
 
 }
 

@@ -68,7 +68,7 @@ void InitGame(GameEnv *env)
 
         env->tubes[i/2].active = true;
     }
-    env->log[0].score = 0; 
+    env->log.score = 0; 
     env->gamestate.gameOver = false; 
     env->gamestate.superfx = false; 
     env->gamestate.pause = false; 
@@ -110,13 +110,13 @@ void UpdateGame(GameEnv *env)
                 }
                 else if ((env->tubesPos[i/2].x < env->floppy.position.x) && env->tubes[i/2].active && !env->gamestate.gameOver)
                 {
-                    env->log[0].score += 100;
+                    env->log.score += 100;
                     env->tubes[i/2].active = false;
-                    printf("[SCORE] updating score value %d \r\n", env->log[0].score);
+                    printf("[SCORE] updating score value %d \r\n", env->log.score);
 
                     env->gamestate.superfx = true;
 
-                    if (env->log[0].score > env->log[0].hiScore) env->log[0].hiScore = env->log[0].score;
+                    if (env->log.score > env->log.hiScore) env->log.hiScore = env->log.score;
                 }
             }
         }
@@ -156,8 +156,8 @@ void DrawGame(GameEnv *env)
                 env->gamestate.superfx = false;
             }
 
-            DrawText(TextFormat("%04i", env->log[0].score), 20, 20, 40, GRAY);
-            DrawText(TextFormat("HI-SCORE: %04i", env->log[0].hiScore), 20, 70, 20, LIGHTGRAY);
+            DrawText(TextFormat("%04i", env->log.score), 20, 20, 40, GRAY);
+            DrawText(TextFormat("HI-SCORE: %04i", env->log.hiScore), 20, 70, 20, LIGHTGRAY);
 
             if (env->gamestate.pause) DrawText("GAME PAUSED", screenWidth/2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
         }
@@ -181,8 +181,8 @@ void UpdateDrawFrame(GameEnv *env)
 
 void c_step(GameEnv *env)
 {
-    env->log[0].n += 1; 
-    env->log[0].tick += 1; 
+    env->log.n += 1; 
+    env->log.tick += 1; 
     UpdateGame(env);
     DrawGame(env);
 }
@@ -193,9 +193,9 @@ void _game_init(GameEnv *env, int num_envs)
     //initialize game state 
     env->gamestate.gameOver = false; 
     env->gamestate.pause = false; 
-    env->log = (Log*)calloc(num_envs, sizeof(Log));
-    env->log[0].hiScore = 0; 
-    printf("Starting value for score is -> %d and hiScore is -> %d\r\n", env->log[0].score , env->log[0].hiScore); 
+    env->log = {0};
+    env->log.hiScore = 0; 
+    printf("Starting value for score is -> %d and hiScore is -> %d\r\n", env->log.score , env->log.hiScore); 
 
 
 
