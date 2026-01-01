@@ -115,16 +115,16 @@ void c_reset (GameEnv *env)
 
 }
 
-static bool gameOver = false;
-static bool pause = false;
-static int score = 0;
-static int hiScore = 0;
+// static bool gameOver = false;
+// static bool pause = false;
+// static int score = 0;
+// static int hiScore = 0;
 
-static Floppy floppy = { 0 };
-static Tubes tubes[MAX_TUBES*2] = { 0 };
-static Vector2 tubesPos[MAX_TUBES] = { 0 };
-static int tubesSpeedX = 0;
-static bool superfx = false;
+// static Floppy floppy = { 0 };
+// static Tubes tubes[MAX_TUBES*2] = { 0 };
+// static Vector2 tubesPos[MAX_TUBES] = { 0 };
+// static int tubesSpeedX = 0;
+// static bool superfx = false;
 
 //------------------------------------------------------------------------------------
 // Module Functions Declaration (local)

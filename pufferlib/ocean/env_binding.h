@@ -2,7 +2,7 @@
 #include <numpy/arrayobject.h>
 
 // Forward declarations for env-specific functions supplied by user
-static int my_log(PyObject* dict, Log* log);
+static int my_log(PyObject* dict, Env* env);
 static int my_init(Env* env, PyObject* args, PyObject* kwargs);
 
 static PyObject* my_shared(PyObject* self, PyObject* args, PyObject* kwargs);
