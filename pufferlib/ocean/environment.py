@@ -130,6 +130,7 @@ MAKE_FUNCTIONS = {
     'drone': 'Drone',
     'nmmo3': 'NMMO3',
     'snake': 'Snake',
+    'floppy':'Floppy',
     'squared': 'Squared',
     'school': 'School',
     'pysquared': 'PySquared',
@@ -155,6 +156,7 @@ MAKE_FUNCTIONS = {
 
 def env_creator(name='squared', *args, **kwargs):
     if 'puffer_' not in name:
+        
         raise pufferlib.APIUsageError(f'Invalid environment name: {name}')
 
     # TODO: Robust sanity / ocean imports

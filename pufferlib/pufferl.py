@@ -1139,7 +1139,7 @@ def load_config(env_name):
             p.read([puffer_default_config, path])
             if env_name in p['base']['env_name'].split(): break
         else:
-            raise pufferlib.APIUsageError('No config for env_name {}'.format(env_name))
+            raise pufferlib.APIUsageError('No config for env_name _ {}'.format(env_name))
 
     # Dynamic help menu from config
     def auto_type(value):
@@ -1187,7 +1187,9 @@ def main():
     mode = sys.argv.pop(1)
     env_name = sys.argv.pop(1)
     if mode == 'train':
+        print(f"[Pufferl][L1190] env name is -> {env_name}")
         train(env_name=env_name)
+      
     elif mode == 'eval':
         eval(env_name=env_name)
     elif mode == 'sweep':
