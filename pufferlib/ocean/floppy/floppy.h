@@ -20,24 +20,27 @@
 #define NUM_ENVS 10
 
 
+//Try multiple iterations and test if 
+//setting a lower goal scales to a higher goals 
+#define GOAL 10000 
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-
-
 typedef struct {
     float perf; 
     float ep_length; 
     float ep_return; 
     int tick; 
     int size; 
-    int num_envs; 
     float n; 
     int hiScore; 
+    int actions; 
+    int rewards; 
     int score;           // score achieved in the game 
     int number_of_ups;     // number of time floppy is moved up 
-                            // with this information it is a measure of understanding of game physics 
+                            // with this information it is a measure of understanding of game physics                     
+    int goal; // the goal the RL should try and achieve 
 }Log; 
 
 
@@ -64,7 +67,7 @@ typedef struct GameState {
 typedef struct GameEnv {
     Log log; 
     float *observations; 
-    int *actions; 
+    
     float *rewards; 
     unsigned char *terminals; 
     int tick; 
@@ -74,10 +77,9 @@ typedef struct GameEnv {
     Tubes tubes[MAX_TUBES*2]; 
     Vector2 tubesPos[MAX_TUBES]; 
     int tubesSpeedx; 
-   
-    
-    int goal; 
+    int num_envs;  
 
+    
 } GameEnv; 
 
 //------------------------------------------------------------------------------------
@@ -120,13 +122,10 @@ void _game_init(GameEnv *env, int num_envs)
     env->tubesPos[0] = (Vector2){0, 0}; 
     env->tubesSpeedx= 0; 
     env->gamestate.superfx = false; 
-    env->goal = 0;     
+    env->log.goal = GOAL;     
 
     env->observations = (float*)(calloc(1,sizeof(float))); 
 }
-
-
-
 // Initialize game variables
 void InitGame(GameEnv *env)
 {
@@ -184,8 +183,16 @@ void UpdateGame(GameEnv *env)
                 env->tubes[i+1].rec.x = env->tubesPos[i/2].x;
             }
 
-            if (IsKeyDown(KEY_SPACE) && !env->gamestate.gameOver) env->floppy.position.y -= 3;
-            else env->floppy.position.y += 1;
+            if (IsKeyDown(KEY_SPACE) && !env->gamestate.gameOver) {
+                env->floppy.position.y -= 3; 
+                env->log.actions = 1; 
+            
+            }
+            else {
+                env->floppy.position.y += 1; 
+                env->log.actions = 0; //no action taken 
+            
+            };
 
             // Check Collisions
             for (int i = 0; i < MAX_TUBES*2; i++)
@@ -194,10 +201,13 @@ void UpdateGame(GameEnv *env)
                 {
                     env->gamestate.gameOver = true;
                     env->gamestate.pause = false;
+                    env->log.actions = 0; 
+                    env->log.rewards -= 3; //heavily penalized the model for colliding with objects
                 }
                 else if ((env->tubesPos[i/2].x < env->floppy.position.x) && env->tubes[i/2].active && !env->gamestate.gameOver)
                 {
                     env->log.score += 100;
+                    env->log.rewards += 1; //reward the agent when it increments the value 
                     env->tubes[i/2].active = false;
                     printf("[SCORE] updating score value %d \r\n", env->log.score);
 
@@ -213,6 +223,7 @@ void UpdateGame(GameEnv *env)
     {
         if (IsKeyPressed(KEY_ENTER))
         {
+            printf("[C] Fn key pressed Enter Game over \r\n"); 
             InitGame(env);
             env->gamestate.gameOver = false;
         }
@@ -248,13 +259,26 @@ void DrawGame(GameEnv *env)
             DrawText(TextFormat("%04i", env->log.score), 20, 20, 40, GRAY);
             DrawText(TextFormat("HI-SCORE: %04i", env->log.hiScore), 20, 70, 20, LIGHTGRAY);
 
-            if (env->gamestate.pause) DrawText("GAME PAUSED", screenWidth/2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
+            if (env->gamestate.pause) {
+                DrawText("GAME PAUSED", screenWidth/2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
+                printf("[C] Game Paused \r\n"); 
+
+            }
         }
-        else DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2 - 50, 20, GRAY);
+        else {
+            printf("[C][Game Over] PRESS ENTER button to play again \r\n"); 
+            DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2 - 50, 20, GRAY);
+            
+        }
 
     EndDrawing();
 }
 
+void c_render(GameEnv *env)
+{
+    UpdateGame(env);
+    DrawGame(env);
+}
 // Update and Draw (one frame)
 void UpdateDrawFrame(GameEnv *env)
 {
@@ -264,6 +288,9 @@ void UpdateDrawFrame(GameEnv *env)
 
 void c_reset (GameEnv *env)
 {
+
+    //should restart the game 
+    printf("[C][c_reset] Fn to reset the game Env \r\n"); 
     
     env->floppy = (struct Floppy){.position = 0}; 
     for(int i =0; i < MAX_TUBES * 2; i++)
@@ -278,7 +305,7 @@ void c_reset (GameEnv *env)
         env->tubesPos[i] = (Vector2){0, 0}; 
     }
     
-    env->tubesSpeedx = 0; 
+    // env->tubesSpeedx = 0; 
     env->gamestate.superfx = false; 
     env->log = (Log){0};
 
@@ -311,11 +338,23 @@ void _game_init(GameEnv *env, int num_envs);
 
 void c_step(GameEnv *env)
 {
+    printf("[C][Floppy] Step function \r\n"); 
     env->log.n += 1; 
     env->log.tick += 1; 
-    UpdateGame(env);
-    DrawGame(env);
+
+    if(env->log.actions == 1)
+    {
+        //space bar pressed 
+
+    }
+   
 }
 
+void c_close(GameEnv* env) {
+    if (IsWindowReady()) {
+        CloseWindow(); 
+        freemem(env); 
+    }
+}
 
 

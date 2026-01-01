@@ -7,7 +7,7 @@ int main(void)
     // Initialization
     //---------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "classic game: floppy");
-    GameEnv env =  { .goal = 0 }; 
+    GameEnv env; 
     InitGame(&env);
 
 #if defined(PLATFORM_WEB)
@@ -23,14 +23,19 @@ int main(void)
         //----------------------------------------------------------------------------------
         //UpdateDrawFrame();
         c_step(&env); 
+        c_render(&env); 
         //----------------------------------------------------------------------------------
     }
+    
 #endif
     // De-Initialization
     //--------------------------------------------------------------------------------------
     UnloadGame();         // Unload loaded data (textures, sounds, models...)
 
     CloseWindow();        // Close window and OpenGL context
+
+    c_close(&env); 
+
     //--------------------------------------------------------------------------------------
 
     return 0;
