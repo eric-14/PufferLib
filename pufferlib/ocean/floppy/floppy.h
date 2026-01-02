@@ -186,12 +186,12 @@ void UpdateGame(GameEnv *env)
 
             if (IsKeyDown(KEY_SPACE) && !env->gamestate.gameOver) {
                 env->floppy.position.y -= 3; 
-                env->actions = 1; 
+                env->actions[0] = 1; 
             
             }
             else {
                 env->floppy.position.y += 1; 
-                env->actions = 0; //no action taken 
+                env->actions[0] = 0; //no action taken 
             
             };
 
@@ -202,7 +202,7 @@ void UpdateGame(GameEnv *env)
                 {
                     env->gamestate.gameOver = true;
                     env->gamestate.pause = false;
-                    env->actions = 0; 
+                    env->actions[0] = 0; 
                     env->log.rewards -= 3; //heavily penalized the model for colliding with objects
                 }
                 else if ((env->tubesPos[i/2].x < env->floppy.position.x) && env->tubes[i/2].active && !env->gamestate.gameOver)
@@ -343,7 +343,7 @@ void c_step(GameEnv *env)
     env->log.n += 1; 
     env->log.tick += 1; 
 
-    if(env->log.actions == 1)
+    if(env->actions[0] == 1)
     {
         //space bar pressed 
 
