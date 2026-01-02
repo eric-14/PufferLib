@@ -7,6 +7,13 @@ typedef GameEnv Env;
 
 static int my_init(Env* env, PyObject* args, PyObject* kwargs) {
     env->log.size = unpack(kwargs, "size");
+    env->log.ep_length = unpack(kwargs, "ep_length");
+    env->log.ep_return = unpack(kwargs, "ep_return");
+    env->log.n = unpack(kwargs, "n");
+    env->log.score = unpack(kwargs, "score");
+    env->log.hiScore = unpack(kwargs, "hiScore");
+    
+
    // env->num_envs = unpack(kwargs, "num_envs");
     return 0;
 }

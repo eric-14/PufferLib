@@ -22,7 +22,7 @@
 
 //Try multiple iterations and test if 
 //setting a lower goal scales to a higher goals 
-#define GOAL 10000 
+#define GOAL 10000.0
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -35,7 +35,6 @@ typedef struct {
     int size; 
     float n; 
     float hiScore; 
-   
     float rewards; 
     float score;           // score achieved in the game 
     float number_of_ups;     // number of time floppy is moved up 
@@ -67,8 +66,7 @@ typedef struct GameState {
 typedef struct GameEnv {
     Log log; 
     float *observations; 
-    int *actions; 
-    
+    int *actions;
     float *rewards; 
     unsigned char *terminals; 
     int tick; 
@@ -113,11 +111,9 @@ void _game_init(GameEnv *env, int num_envs)
     env->gamestate.gameOver = false; 
     env->gamestate.pause = false; 
     env->log = (typeof(env->log)){0};
-    env->log.hiScore = 0; 
-    printf("Starting value for score is -> %d and hiScore is -> %d\r\n", env->log.score , env->log.hiScore); 
-
-
-
+    env->log.hiScore = 0.0;
+    env->log.score = 0.0;  
+    printf("Starting value for score is -> %f and hiScore is -> %f\r\n", env->log.score , env->log.hiScore); 
     env->floppy.radius = 10; 
     env->tubes[0].active= false; 
     env->tubesPos[0] = (Vector2){0, 0}; 
@@ -209,10 +205,10 @@ void UpdateGame(GameEnv *env)
                 }
                 else if ((env->tubesPos[i/2].x < env->floppy.position.x) && env->tubes[i/2].active && !env->gamestate.gameOver)
                 {
-                    env->log.score += 100;
-                    env->log.rewards += 1; //reward the agent when it increments the value 
+                    env->log.score += 100.0;
+                    env->log.rewards += 1.0; //reward the agent when it increments the value 
                     env->tubes[i/2].active = false;
-                    printf("[SCORE] updating score value %d \r\n", env->log.score);
+                    printf("[SCORE] updating score value %f \r\n", env->log.score);
 
                     env->gamestate.superfx = true;
 
@@ -260,8 +256,8 @@ void DrawGame(GameEnv *env)
                 env->gamestate.superfx = false;
             }
 
-            DrawText(TextFormat("%04i", env->log.score), 20, 20, 40, GRAY);
-            DrawText(TextFormat("HI-SCORE: %04i", env->log.hiScore), 20, 70, 20, LIGHTGRAY);
+            DrawText(TextFormat("%.1f", env->log.score), 20, 20, 40, GRAY);
+            DrawText(TextFormat("HI-SCORE: %.1f", env->log.hiScore), 20, 70, 20, LIGHTGRAY);
 
             if (env->gamestate.pause) {
                 DrawText("GAME PAUSED", screenWidth/2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
@@ -292,55 +288,11 @@ void UpdateDrawFrame(GameEnv *env)
 
 void c_reset (GameEnv *env)
 {
-
     //should restart the game 
-    printf("[C][c_reset] Fn to reset the game Env \r\n"); 
-
+    printf("[C][c_reset] Fn to reset the game Env \r\n");
     InitGame(env);
     env->gamestate.gameOver = false;
-    
-    // env->floppy = (struct Floppy){.position = 0}; 
-    // for(int i =0; i < MAX_TUBES * 2; i++)
-    // {
-    //     env->tubes[i] = (struct Tubes){
-    //                             .rec ={ 0, 0},
-    //                             .active = false
-    //                             }; 
-    // }
-    // for(int i =0; i < MAX_TUBES; i++)
-    // {
-    //     env->tubesPos[i] = (Vector2){0, 0}; 
-    // }
-    
-    // // env->tubesSpeedx = 0; 
-    // env->gamestate.superfx = false; 
-    // env->log = (Log){0};
-
 }
-
-
-
-// static bool gameOver = false;
-// static bool pause = false;
-// static int score = 0;
-// static int hiScore = 0;
-
-// static Floppy floppy = { 0 };
-// static Tubes tubes[MAX_TUBES*2] = { 0 };
-// static Vector2 tubesPos[MAX_TUBES] = { 0 };
-// static int tubesSpeedX = 0;
-// static bool superfx = false;
-
-//------------------------------------------------------------------------------------
-// Module Functions Declaration (local)
-//------------------------------------------------------------------------------------
-// void InitGame(GameEnv *env);         // Initialize game
-// void UpdateGame(GameEnv *env);       // Update game (one frame)
-// void DrawGame(GameEnv *env);         // Draw game (one frame)
-// void UnloadGame(void);       // Unload game
-// void UpdateDrawFrame(GameEnv *env);  // Update and Draw (one frame)
-// void c_step(GameEnv *env); 
-void _game_init(GameEnv *env, int num_envs);
 
 
 void c_step(GameEnv *env)
@@ -356,6 +308,14 @@ void c_step(GameEnv *env)
     }
    
 }
+
+// void add_log(GameEnv *env)
+// {
+//     env->log.score +=  
+//     env.log.ep_return 
+//     env->log.ep_length += 
+//     en
+// }
 
 void c_close(GameEnv* env) {
     if (IsWindowReady()) {
