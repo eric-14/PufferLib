@@ -35,7 +35,7 @@ typedef struct {
     int size; 
     float n; 
     int hiScore; 
-    int actions; 
+   
     int rewards; 
     int score;           // score achieved in the game 
     int number_of_ups;     // number of time floppy is moved up 
@@ -67,6 +67,7 @@ typedef struct GameState {
 typedef struct GameEnv {
     Log log; 
     float *observations; 
+    int *actions; 
     
     float *rewards; 
     unsigned char *terminals; 
@@ -185,12 +186,12 @@ void UpdateGame(GameEnv *env)
 
             if (IsKeyDown(KEY_SPACE) && !env->gamestate.gameOver) {
                 env->floppy.position.y -= 3; 
-                env->log.actions = 1; 
+                env->actions = 1; 
             
             }
             else {
                 env->floppy.position.y += 1; 
-                env->log.actions = 0; //no action taken 
+                env->actions = 0; //no action taken 
             
             };
 
@@ -201,7 +202,7 @@ void UpdateGame(GameEnv *env)
                 {
                     env->gamestate.gameOver = true;
                     env->gamestate.pause = false;
-                    env->log.actions = 0; 
+                    env->actions = 0; 
                     env->log.rewards -= 3; //heavily penalized the model for colliding with objects
                 }
                 else if ((env->tubesPos[i/2].x < env->floppy.position.x) && env->tubes[i/2].active && !env->gamestate.gameOver)
