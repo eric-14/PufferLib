@@ -34,13 +34,13 @@ typedef struct {
     int tick; 
     int size; 
     float n; 
-    int hiScore; 
+    float hiScore; 
    
-    int rewards; 
-    int score;           // score achieved in the game 
-    int number_of_ups;     // number of time floppy is moved up 
+    float rewards; 
+    float score;           // score achieved in the game 
+    float number_of_ups;     // number of time floppy is moved up 
                             // with this information it is a measure of understanding of game physics                     
-    int goal; // the goal the RL should try and achieve 
+    float goal; // the goal the RL should try and achieve 
 }Log; 
 
 
