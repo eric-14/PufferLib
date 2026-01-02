@@ -126,6 +126,8 @@ void _game_init(GameEnv *env, int num_envs)
     env->log.goal = GOAL;     
 
     env->observations = (float*)(calloc(1,sizeof(float))); 
+
+    env->actions = (int*)(calloc(1,sizeof(int))); 
 }
 // Initialize game variables
 void InitGame(GameEnv *env)
