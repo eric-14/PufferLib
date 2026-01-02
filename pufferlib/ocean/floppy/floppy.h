@@ -224,6 +224,7 @@ void UpdateGame(GameEnv *env)
     }
     else
     {
+        printf("[C] Game over \r\n"); 
         if (IsKeyPressed(KEY_ENTER))
         {
             printf("[C] Fn key pressed Enter Game over \r\n"); 
@@ -294,23 +295,26 @@ void c_reset (GameEnv *env)
 
     //should restart the game 
     printf("[C][c_reset] Fn to reset the game Env \r\n"); 
+
+    InitGame(env);
+    env->gamestate.gameOver = false;
     
-    env->floppy = (struct Floppy){.position = 0}; 
-    for(int i =0; i < MAX_TUBES * 2; i++)
-    {
-        env->tubes[i] = (struct Tubes){
-                                .rec ={ 0, 0},
-                                .active = false
-                                }; 
-    }
-    for(int i =0; i < MAX_TUBES; i++)
-    {
-        env->tubesPos[i] = (Vector2){0, 0}; 
-    }
+    // env->floppy = (struct Floppy){.position = 0}; 
+    // for(int i =0; i < MAX_TUBES * 2; i++)
+    // {
+    //     env->tubes[i] = (struct Tubes){
+    //                             .rec ={ 0, 0},
+    //                             .active = false
+    //                             }; 
+    // }
+    // for(int i =0; i < MAX_TUBES; i++)
+    // {
+    //     env->tubesPos[i] = (Vector2){0, 0}; 
+    // }
     
-    // env->tubesSpeedx = 0; 
-    env->gamestate.superfx = false; 
-    env->log = (Log){0};
+    // // env->tubesSpeedx = 0; 
+    // env->gamestate.superfx = false; 
+    // env->log = (Log){0};
 
 }
 
@@ -341,7 +345,7 @@ void _game_init(GameEnv *env, int num_envs);
 
 void c_step(GameEnv *env)
 {
-    printf("[C][Floppy] Step function \r\n"); 
+    // printf("[C][Floppy] Step function score is -> %d\r\n", env->log.score); 
     env->log.n += 1; 
     env->log.tick += 1; 
 

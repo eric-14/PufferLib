@@ -27,9 +27,9 @@ class Floppy(pufferlib.PufferEnv):
         return self.observations, []
 
     def step(self, actions):
-        print("[Py][Floppy]  __step__ fn")
+        # print("[Py][Floppy]  __step__ fn")
         self.actions[:] = actions
-        print(f"[Py][Floppy] self.actions {self.actions[:]}")
+        # print(f"[Py][Floppy] self.actions {self.actions[:]}")
         binding.vec_step(self.c_envs)
         info = [binding.vec_log(self.c_envs)]
         return (self.observations, self.rewards,
