@@ -12,7 +12,7 @@ class Floppy(pufferlib.PufferEnv):
         self.single_observation_space = gymnasium.spaces.Box(low=0, high=1,
             shape=(1,), dtype=np.uint8)
         print("[Py][Floppy]  __init__ fn")
-        self.single_action_space = gymnasium.spaces.Discrete(2)
+        self.single_action_space = gymnasium.spaces.Discrete(1)
         self.render_mode = render_mode
         self.num_agents = num_envs
 
@@ -22,12 +22,14 @@ class Floppy(pufferlib.PufferEnv):
         self.size = size
  
     def reset(self, seed=0):
+        self.tick = 0
         binding.vec_reset(self.c_envs, seed)
         print("[Py][Floppy] reset fn")
         return self.observations, []
 
     def step(self, actions):
         # print("[Py][Floppy]  __step__ fn")
+        self.tick += 1 
         self.actions[:] = actions
         # print(f"[Py][Floppy] self.actions {self.actions[:]}")
         binding.vec_step(self.c_envs)

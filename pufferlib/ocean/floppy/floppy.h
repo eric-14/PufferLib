@@ -29,14 +29,14 @@
 //----------------------------------------------------------------------------------
 typedef struct {
     float perf; 
-    float ep_length; 
-    float ep_return; 
+    float episode_length; 
+    float episode_return; 
     int tick; 
     int size; 
     float n; 
     float hiScore; 
     float rewards; 
-    float score;           // score achieved in the game 
+    float score;              // score achieved in the game 
     float number_of_ups;     // number of time floppy is moved up 
                             // with this information it is a measure of understanding of game physics                     
     float goal; // the goal the RL should try and achieve 
@@ -69,8 +69,6 @@ typedef struct GameEnv {
     int *actions;
     float *rewards; 
     unsigned char *terminals; 
-    int tick; 
-    float ep_return; 
     GameState gamestate; 
     Floppy floppy; 
     Tubes tubes[MAX_TUBES*2]; 
@@ -168,6 +166,7 @@ void InitGame(GameEnv *env)
 
 void UpdateGame(GameEnv *env)
 {
+    printf("[C][update] start update function \r\n"); 
     if (!env->gamestate.gameOver)
     {
         if (IsKeyPressed('P')) env->gamestate.pause = !env->gamestate.pause;
@@ -217,6 +216,7 @@ void UpdateGame(GameEnv *env)
                 }
             }
         }
+
     }
     else
     {
@@ -228,12 +228,14 @@ void UpdateGame(GameEnv *env)
             env->gamestate.gameOver = false;
         }
     }
+    printf("[C][update] update end of function \r\n"); 
 }
 
 
 // Draw game (one frame)
 void DrawGame(GameEnv *env)
 {
+    printf("[C][DrawGame] start of fn \r\n"); 
     BeginDrawing();
 
         ClearBackground(RAYWHITE);
@@ -272,12 +274,24 @@ void DrawGame(GameEnv *env)
         }
 
     EndDrawing();
+    printf("[C][DrawGame] end of fn \r\n"); 
+}
+
+void add_log(GameEnv* env) {
+    env->log.perf += env->log.score;  
+    env->log.score += env->log.score;
+    env->log.episode_length += env->log.tick;
+    env->log.episode_return += env->log.score;
+    env->log.n++;
 }
 
 void c_render(GameEnv *env)
 {
+    printf("[C][c_render] fun \r\n"); 
     UpdateGame(env);
+
     DrawGame(env);
+    printf("[C][c_render] end of render fun \r\n"); 
 }
 // Update and Draw (one frame)
 void UpdateDrawFrame(GameEnv *env)
