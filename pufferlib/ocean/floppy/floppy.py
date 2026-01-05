@@ -9,12 +9,13 @@ from pufferlib.ocean.floppy import binding
 
 class Floppy(pufferlib.PufferEnv):
     def __init__(self, num_envs=4, render_mode=None, log_interval=128, size=5, buf=None, seed=0):
-        self.single_observation_space = gymnasium.spaces.Box(low=0, high=1,
-            shape=(1,), dtype=np.uint8)
+        self.single_observation_space = gymnasium.spaces.Box(low=0, high=1000,
+            shape=(size*size,), dtype=np.float32)
         print("[Py][Floppy]  __init__ fn")
-        self.single_action_space = gymnasium.spaces.Discrete(1)
+        self.single_action_space = gymnasium.spaces.Discrete(2)
         self.render_mode = render_mode
         self.num_agents = num_envs
+        self.log_interval = log_interval
 
         super().__init__(buf)
         self.c_envs = binding.vec_init(self.observations, self.actions, self.rewards,
@@ -22,8 +23,9 @@ class Floppy(pufferlib.PufferEnv):
         self.size = size
  
     def reset(self, seed=0):
-        self.tick = 0
+       
         binding.vec_reset(self.c_envs, seed)
+        self.tick = 0
         print("[Py][Floppy] reset fn")
         return self.observations, []
 
@@ -46,7 +48,7 @@ class Floppy(pufferlib.PufferEnv):
         binding.vec_close(self.c_envs)
 
 if __name__ == '__main__':
-    N = 4096
+    N = 1
     env = Floppy(num_envs=N)
     env.reset()
     steps = 0

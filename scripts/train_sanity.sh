@@ -2,6 +2,7 @@
  
 environments=(
     "puffer_squared"
+    "puffer_floppy"
     "puffer_password"
     "puffer_stochastic"
     "puffer_memory"

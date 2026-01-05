@@ -9,7 +9,7 @@ static int my_init(Env* env, PyObject* args, PyObject* kwargs) {
     env->log.size = unpack(kwargs, "size");
     // env->log.ep_length = unpack(kwargs, "episode_length");
     // env->log.ep_return = unpack(kwargs, "episode_return");
-    InitGame(env);
+    _game_init(env, 1);
     // env->log.n = unpack(kwargs, "n");
     // env->log.score = unpack(kwargs, "score");
     // env->log.hiScore = unpack(kwargs, "hiScore");
