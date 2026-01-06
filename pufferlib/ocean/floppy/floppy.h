@@ -101,6 +101,20 @@ void freemem(GameEnv *env)
 // Update game (one frame)
 
 
+void compute_observations(GameEnv *env, bool collided)
+{
+    //ball position 
+    env->observations[0] =  env->floppy.position.x / screenWidth; 
+    env->observations[1] =  env->floppy.position.y / screenHeight; 
+    // Observations at each iteration of the game 
+    if(!collided)
+    {
+         env->observations[2] = 0; 
+    }else 
+    {
+         env->observations[2] = 1; 
+    }
+}
 // Unload game variables
 void UnloadGame(void)
 {
@@ -299,20 +313,46 @@ void DrawGame(GameEnv *env)
 //     env->log.n++;
 // }
 
-void add_log(GameEnv* env) {
-    // env->log.perf += env->log.score / env->log.goal;  // Normalized performance 0-1
-    // env->log.score += env->rewards[0];
-    // env->log.episode_length += 1;
-    // env->log.episode_return += env->rewards[0];
-    // env->log.n++;
-   // printf("[C][add_log] Fn \r\n");
-    env->log.perf += env->log.score / env->log.goal;
-    env->log.score = env->log.hiScore;  // Keep current score
-    env->log.episode_length = env->log.tick;
-    env->log.episode_return += (float)env->rewards[0];  // Sum of rewards
-    env->log.n += 1.0f;  // Episode counter
-}
+// void add_log(GameEnv* env) {
+//     // env->log.perf += env->log.score / env->log.goal;  // Normalized performance 0-1
+//     // env->log.score += env->rewards[0];
+//     // env->log.episode_length += 1;
+//     // env->log.episode_return += env->rewards[0];
+//     // env->log.n++;
+//    // printf("[C][add_log] Fn \r\n");
+//     env->log.perf += env->log.score / env->log.goal;
+//     env->log.score += env->log.hiScore;  // Keep current score
+//     env->log.episode_length += env->log.tick;
+//     env->log.episode_return += env->rewards[0];   // Sum of rewards
+//     env->log.n += 1.0f;  // Episode counter
+// }
 
+
+void add_log(GameEnv* env) {
+    // 1. Accumulate per-step metrics
+    env->log.episode_return += env->rewards[0]; // Sum rewards for the episode
+    env->log.episode_length += 1.0f;            // Count steps in the episode
+
+    // 2. Update overall score/high-score (for your game's logic)
+    env->log.score = env->log.hiScore;
+    //env->log.n += 1.0f;   
+    if (env->terminals[0]) {
+        // When episode ends, mark for counting
+        // But DON'T increment n here - vec_log handles it
+        env->log.perf = env->log.hiScore / env->log.goal;
+    }  
+
+    // 3. Finalize episode log only when the episode ends
+    // if (env->terminals[0]) {
+    //     env->log.n += 1.0f;                     // Count completed episodes
+    //     env->log.perf = env->log.score / env->log.goal; // Optional performance metric
+
+    //     // 4. Reset episode accumulators for the next episode
+    //     // Note: vec_log will later zero these, but resetting here is clean.
+    //     env->log.episode_return = 0.0f;
+    //     env->log.episode_length = 0.0f;
+    // }
+}
 void c_render(GameEnv *env)
 {
     printf("[C][c_render] fun \r\n"); 
@@ -339,6 +379,9 @@ void c_reset(GameEnv* env) {
     printf("[C][c_reset] Fn \r\n");
     env->gamestate.gameOver = true;
     InitGame(env);
+    env->log.episode_return = 0.0f;
+    env->log.episode_length = 0.0f;
+    env->log.tick = 0;
     // env->gamestate.gameOver = false;
     // env->log.tick = 0;
     // env->log.score = 0;
@@ -451,6 +494,7 @@ void c_step(GameEnv* env) {
 
         //printf("[C] Game over \r\n");
         env->terminals[0] = 1; 
+        env->rewards[0] = -1.0;
         //action 2 allows the game to reset
         if (IsKeyPressed(KEY_ENTER) || action == 2)
         {
@@ -485,18 +529,3 @@ void c_close(GameEnv* env) {
     }
 }
 
-
-void compute_observations(GameEnv *env, bool collided)
-{
-    //ball position 
-    env->observations[0] =  env->floppy.position.x / screenWidth; 
-    env->observations[1] =  env->floppy.position.y / screenHeight; 
-    // Observations at each iteration of the game 
-    if(!collided)
-    {
-         env->observations[2] = 0; 
-    }else 
-    {
-         env->observations[2] = 1; 
-    }
-}

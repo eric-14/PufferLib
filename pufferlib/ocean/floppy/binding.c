@@ -3,6 +3,9 @@
 typedef GameEnv Env; 
 #include "../env_binding.h"
 
+
+
+
 // typedef GameEnv Log; 
 
 static int my_init(Env* env, PyObject* args, PyObject* kwargs) {
