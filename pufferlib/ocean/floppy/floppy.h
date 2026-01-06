@@ -495,6 +495,7 @@ void c_step(GameEnv* env) {
         //printf("[C] Game over \r\n");
         env->terminals[0] = 1; 
         env->rewards[0] = -1.0;
+        compute_observations(env, false); 
         //action 2 allows the game to reset
         if (IsKeyPressed(KEY_ENTER) || action == 2)
         {

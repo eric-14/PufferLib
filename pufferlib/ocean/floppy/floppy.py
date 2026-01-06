@@ -18,8 +18,23 @@ class Floppy(pufferlib.PufferEnv):
         self.log_interval = log_interval
 
         super().__init__(buf)
-        self.c_envs = binding.vec_init(self.observations, self.actions, self.rewards,
-            self.terminals, self.truncations, num_envs, seed, size=size)
+        # self.c_envs = binding.vec_init(self.observations, self.actions, self.rewards,
+        #     self.terminals, self.truncations, num_envs, seed, size=size)
+        c_envs = []
+        for i in range(num_envs):
+            c_env = binding.env_init(
+                self.observations[i:i+1],      # Observation slice for this env
+                self.actions[i:i+1],           # Action slice
+                self.rewards[i:i+1],           # Reward slice
+                self.terminals[i:i+1],         # Terminal slice
+                self.truncations[i:i+1],       # Truncation slice
+                seed + i,                      # Unique seed per env
+                **kwargs                       # Pass any additional args
+            )
+            c_envs.append(c_env)
+
+        self.c_envs = binding.vectorize(*c_envs)
+        self.tick = 0
         self.size = size
  
     def reset(self, seed=0):
@@ -48,7 +63,7 @@ class Floppy(pufferlib.PufferEnv):
         binding.vec_close(self.c_envs)
 
 if __name__ == '__main__':
-    N = 1
+    N = 4096
     env = Floppy(num_envs=N)
     env.reset()
     steps = 0
