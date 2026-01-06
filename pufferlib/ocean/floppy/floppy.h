@@ -148,14 +148,7 @@ void _game_init(GameEnv *env, int num_envs)
     env->gamestate.superfx = false; 
     env->log.goal = GOAL; 
     
-    
-    //client 
-    env->client = (Client*)(calloc(1,sizeof(Client))); 
-
-    env->client->screenWidth = screenWidth; 
-    env->client->screenHeight = screenHeight; 
-    env->client->title = "Classic: Floppy game"; 
-
+   
 
     env->observations = (unsigned char*)(calloc(NUM_OBS, sizeof(unsigned char))); 
     env->rewards = (float*)(calloc(1,sizeof(float))); 
@@ -165,8 +158,15 @@ void _game_init(GameEnv *env, int num_envs)
 }
 
 void make_client(GameEnv *env)
-{
-    InitWindow(*(env->client->screenWidth), *(env->client->screenHeight), env->client->title);
+{  
+    //client 
+    env->client = (Client*)(calloc(1,sizeof(Client))); 
+
+    env->client->screenWidth = screenWidth; 
+    env->client->screenHeight = screenHeight; 
+    env->client->title = "Classic: Floppy game"; 
+
+    InitWindow(env->client->screenWidth, env->client->screenHeight, env->client->title);
 }
 // Initialize game variables
 void InitGame(GameEnv *env)
@@ -285,6 +285,7 @@ void DrawGame(GameEnv *env)
 {
     printf("[C][DrawGame] start of fn \r\n"); 
     BeginDrawing();
+      printf("[C][DrawGame] 288 \r\n"); 
 
         ClearBackground(RAYWHITE);
 
@@ -362,22 +363,15 @@ void add_log(GameEnv* env) {
         // But DON'T increment n here - vec_log handles it
         env->log.perf = env->log.hiScore / env->log.goal;
     }  
-
-    // 3. Finalize episode log only when the episode ends
-    // if (env->terminals[0]) {
-    //     env->log.n += 1.0f;                     // Count completed episodes
-    //     env->log.perf = env->log.score / env->log.goal; // Optional performance metric
-
-    //     // 4. Reset episode accumulators for the next episode
-    //     // Note: vec_log will later zero these, but resetting here is clean.
-    //     env->log.episode_return = 0.0f;
-    //     env->log.episode_length = 0.0f;
-    // }
 }
 void c_render(GameEnv *env)
 {
     printf("[C][c_render] fun \r\n"); 
-    make_client(env); 
+    if(env->client == NULL)
+    {
+        make_client(env); 
+    }
+    
     //UpdateGame(env);
 
     DrawGame(env);
@@ -390,13 +384,6 @@ void UpdateDrawFrame(GameEnv *env)
     //DrawGame(env);
 }
 
-// void c_reset (GameEnv *env)
-// {
-//     //should restart the game 
-//     printf("[C][c_reset] Fn to reset the game Env \r\n");
-//     InitGame(env);
-//     env->gamestate.gameOver = false;
-// }
 void c_reset(GameEnv* env) {
     printf("[C][c_reset] Fn \r\n");
     env->gamestate.gameOver = true;
@@ -412,20 +399,6 @@ void c_reset(GameEnv* env) {
     //env->observations[0] = env->floppy.position.y / screenHeight;
 }
 
-
-// void c_step(GameEnv *env)
-// {
-//     // printf("[C][Floppy] Step function score is -> %d\r\n", env->log.score); 
-//     env->log.n += 1; 
-//     env->log.tick += 1; 
-
-//     if(env->actions[0] == 1)
-//     {
-//         //space bar pressed 
-
-//     }
-   
-// }
 
 void c_step(GameEnv* env) {
     
@@ -535,13 +508,6 @@ void c_step(GameEnv* env) {
     }
 }
 
-// void add_log(GameEnv *env)
-// {
-//     env->log.score +=  
-//     env.log.ep_return 
-//     env->log.ep_length += 
-//     en
-// }
 
 void c_close(GameEnv* env) {
     env->gamestate.gameOver = true; 

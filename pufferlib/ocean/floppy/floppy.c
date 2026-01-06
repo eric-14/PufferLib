@@ -4,14 +4,16 @@ int main(void)
 {
     
     // InitWindow(screenWidth, screenHeight, "classic game: floppy");
-     make_client(env); 
+    
     GameEnv env; 
+  
     env.actions = (int*)calloc(1, sizeof(int)); 
     env.rewards = (float*)calloc(1, sizeof(float));
     env.terminals = (unsigned char*)calloc(1, sizeof(unsigned char));
     env.observations = (unsigned char*)calloc(5, sizeof(unsigned char));
 
     InitGame(&env);
+    make_client(&env); 
 
 
     SetTargetFPS(FRAMERATE);
