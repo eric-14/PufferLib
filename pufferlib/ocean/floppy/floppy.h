@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <string.h>
 
 
 #if defined(PLATFORM_WEB)
@@ -135,7 +135,7 @@ void _game_init(GameEnv *env, int num_envs)
     //initialize game state 
     env->gamestate.gameOver = false; 
     env->gamestate.pause = false; 
-    env->log = (typeof(env->log)){0};
+    memset(&(env->log), 0,  sizeof(Log)); 
     env->log.hiScore = 0.0;
     env->log.score = 0.0;  
     env->log.episode_return = 0.0; 
@@ -171,7 +171,7 @@ void make_client(GameEnv *env)
 // Initialize game variables
 void InitGame(GameEnv *env)
 {
-    _game_init(env,NUM_ENVS); // Default the game 
+   
     printf("[C][InitGame] Fn \r\n");
 
     env->floppy.radius = FLOPPY_RADIUS;
@@ -320,6 +320,10 @@ void DrawGame(GameEnv *env)
         else {
             printf("[C][Game Over]-1 PRESS ENTER button to play again \r\n"); 
             DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2 - 50, 20, GRAY);
+            env->rewards[0] += -3.0;
+            _game_init(env,NUM_ENVS);
+            InitGame(env); 
+           
             
         }
 
@@ -373,6 +377,7 @@ void c_render(GameEnv *env)
     }
     
     //UpdateGame(env);
+    // InitGame(env); 
 
     DrawGame(env);
     printf("[C][c_render] end of render fun \r\n"); 
@@ -406,7 +411,7 @@ void c_step(GameEnv* env) {
    // printf("[C][step] action is not zero %d \r\n", env->log.tick ); 
     int action = env->actions[0];
 
-    env->rewards[0] = 0;
+   
     env->terminals[0] = 0;
 
     if(action > 0)
@@ -414,13 +419,12 @@ void c_step(GameEnv* env) {
         printf("[C][step] action is not zero %d \r\n", action ); 
     }
     
-    // Reset rewards/terminals
-    env->rewards[0] = 0;
-    env->terminals[0] = 0;
+  
     if (IsKeyPressed('P')) env->gamestate.pause = !env->gamestate.pause;
     
     // Update game state based on action
     if (!env->gamestate.gameOver && !env->gamestate.pause) {
+        env->rewards[0] += 1.0; 
         //manual control 
         if (IsKeyDown(KEY_SPACE) || action == 1) {
             env->floppy.position.y -= 3; 

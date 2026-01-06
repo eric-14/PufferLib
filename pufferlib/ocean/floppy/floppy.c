@@ -11,6 +11,7 @@ int main(void)
     env.rewards = (float*)calloc(1, sizeof(float));
     env.terminals = (unsigned char*)calloc(1, sizeof(unsigned char));
     env.observations = (unsigned char*)calloc(5, sizeof(unsigned char));
+    _game_init(&env,NUM_ENVS); // Default the game 
 
     InitGame(&env);
     make_client(&env); 
