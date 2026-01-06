@@ -3,7 +3,8 @@
 int main(void)
 {
     
-    InitWindow(screenWidth, screenHeight, "classic game: floppy");
+    // InitWindow(screenWidth, screenHeight, "classic game: floppy");
+     make_client(env); 
     GameEnv env; 
     env.actions = (int*)calloc(1, sizeof(int)); 
     env.rewards = (float*)calloc(1, sizeof(float));

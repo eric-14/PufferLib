@@ -43,6 +43,12 @@ typedef struct {
     float goal; // the goal the RL should try and achieve 
 }Log; 
 
+typedef struct Client {
+    int screenWidth; 
+    int screenHeight; 
+    char* title; 
+} Client; 
+
 
 typedef struct Floppy {
     Vector2 position;
@@ -66,6 +72,7 @@ typedef struct GameState {
 
 typedef struct GameEnv {
     Log log; 
+    Client *client; 
     unsigned char* observations; 
     //float *observations; 
     int *actions;
@@ -93,10 +100,10 @@ static const int screenHeight = 450;
 void freemem(GameEnv *env)
 {
     // free(env->log); 
-    // free(env->observations); 
-    // free(env->rewards);
-    // free(env->terminals);  
-    // free(env->actions); 
+    free(env->observations); 
+    free(env->rewards);
+    free(env->terminals);  
+    free(env->actions); 
 }
 // Update game (one frame)
 
@@ -139,13 +146,27 @@ void _game_init(GameEnv *env, int num_envs)
     env->tubesPos[0] = (Vector2){0, 0}; 
     env->tubesSpeedx= 0; 
     env->gamestate.superfx = false; 
-    env->log.goal = GOAL;     
+    env->log.goal = GOAL; 
+    
+    
+    //client 
+    env->client = (Client*)(calloc(1,sizeof(Client))); 
+
+    env->client->screenWidth = screenWidth; 
+    env->client->screenHeight = screenHeight; 
+    env->client->title = "Classic: Floppy game"; 
+
 
     env->observations = (unsigned char*)(calloc(NUM_OBS, sizeof(unsigned char))); 
     env->rewards = (float*)(calloc(1,sizeof(float))); 
 
     env->actions = (int*)(calloc(1,sizeof(int))); 
     env->terminals = (unsigned char*)(calloc(1,sizeof(unsigned char))); 
+}
+
+void make_client(GameEnv *env)
+{
+    InitWindow(*(env->client->screenWidth), *(env->client->screenHeight), env->client->title);
 }
 // Initialize game variables
 void InitGame(GameEnv *env)
@@ -356,6 +377,7 @@ void add_log(GameEnv* env) {
 void c_render(GameEnv *env)
 {
     printf("[C][c_render] fun \r\n"); 
+    make_client(env); 
     //UpdateGame(env);
 
     DrawGame(env);
