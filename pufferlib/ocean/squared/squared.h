@@ -45,7 +45,7 @@ typedef struct {
 } Squared;
 
 void add_log(Squared* env) {
-   // printf("[C][c_add_log] Fn \r\n"); 
+   printf("[C][c_add_log] Fn \r\n"); 
     env->log.perf += (env->rewards[0] > 0) ? 1 : 0;
     env->log.score += env->rewards[0];
     env->log.episode_length += env->tick;
@@ -55,7 +55,7 @@ void add_log(Squared* env) {
 
 // Required function
 void c_reset(Squared* env) {
-    // printf("[C][c_reset] Fn \r\n"); 
+    printf("[C][c_reset] Fn \r\n"); 
     int tiles = env->size*env->size;
     memset(env->observations, 0, tiles*sizeof(unsigned char));
     env->observations[tiles/2] = AGENT;
@@ -71,7 +71,7 @@ void c_reset(Squared* env) {
 
 // Required function
 void c_step(Squared* env) {
-    // printf("[C][c_step] Fn \r\n"); 
+    printf("[C][c_step] Fn \r\n"); 
     env->tick += 1;
 
     int action = env->actions[0];

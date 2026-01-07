@@ -28,7 +28,7 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-typedef struct {
+typedef struct Log {
     float perf; 
     float episode_length; 
     float episode_return; 
@@ -277,10 +277,8 @@ void UpdateGame(GameEnv *env)
 // Draw game (one frame)
 void DrawGame(GameEnv *env)
 {
-    printf("[C][DrawGame] start of fn \r\n"); 
-    BeginDrawing();
-      printf("[C][DrawGame] 288 \r\n"); 
-
+   
+        BeginDrawing();
         ClearBackground(RAYWHITE);
 
         if (!env->gamestate.gameOver)
@@ -306,7 +304,6 @@ void DrawGame(GameEnv *env)
 
             if (env->gamestate.pause) {
                 DrawText("GAME PAUSED", screenWidth/2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
-                printf("[C] Game Paused \r\n"); 
 
             }
 
@@ -314,15 +311,15 @@ void DrawGame(GameEnv *env)
         else {
             printf("[C][Game Over]-1 PRESS ENTER button to play again \r\n"); 
             DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2 - 50, 20, GRAY);
-            env->rewards[0] += -3.0;
-            _game_init(env,NUM_ENVS);
-            InitGame(env); 
+            // env->rewards[0] += -3.0;
+            // _game_init(env,NUM_ENVS);
+            // InitGame(env); 
            
             
         }
 
     EndDrawing();
-    printf("[C][DrawGame] end of fn \r\n"); 
+   
 }
 
 // void add_log(GameEnv* env) {
@@ -366,27 +363,27 @@ void add_log(GameEnv* env) {
 }
 void c_render(GameEnv *env)
 {
-    printf("[C][c_render] fun \r\n"); 
     if(env->client == NULL)
     {
         make_client(env); 
     }
-    
-    //UpdateGame(env);
-    // InitGame(env); 
-
     DrawGame(env);
-    printf("[C][c_render] end of render fun \r\n"); 
+ 
 }
 // Update and Draw (one frame)
 void UpdateDrawFrame(GameEnv *env)
 {
-    //UpdateGame(env);
-    //DrawGame(env);
 }
 
 void c_reset(GameEnv* env) {
-    printf("[C][c_reset] Fn \r\n");
+    printf("[C][c_reset] Fn ep_length > %f ep_return > %f terminals > %d reward > %f action > %d \r\n",
+        env->log.episode_length, 
+        env->log.episode_return, 
+        env->terminals[0], 
+        env->rewards[0], 
+        env->actions[0]
+        );
+
     env->gamestate.gameOver = true;
     InitGame(env);
     env->log.episode_return = 0.0f;
@@ -397,6 +394,9 @@ void c_reset(GameEnv* env) {
     env->terminals[0] = 0; 
     env->rewards[0] = 0.0; 
     env->log.tick = 0;
+    env->log.score = 0.0; 
+    env->log.hiScore = 0.0; 
+  
     compute_observations(env, false); 
     // env->log.score = 0;
     // env->log.episode_return = 0;
@@ -413,12 +413,14 @@ void c_step(GameEnv* env) {
 
    
     env->terminals[0] = 0;
-    env->rewards[0] = 0.0; 
+    //env->rewards[0] = 0.0; 
+
+    //printf("[C][step] action is not zero %d \r\n", action ); 
 
 
     // if(action > 0)
     // {
-    //     printf("[C][step] action is not zero %d \r\n", action ); 
+    //     
     // }
     
   
@@ -429,7 +431,7 @@ void c_step(GameEnv* env) {
         env->rewards[0] += 1.0; 
         //manual control 
         if (IsKeyDown(KEY_SPACE) || action == 1) {
-            env->floppy.position.y -= 3; 
+            env->floppy.position.y -= 1; 
             env->log.number_of_ups += 1;
             // env->actions[0] = 1; 
         
@@ -452,47 +454,43 @@ void c_step(GameEnv* env) {
         for (int i = 0; i < MAX_TUBES*2; i++) {
             if (CheckCollisionCircleRec(env->floppy.position, env->floppy.radius, env->tubes[i].rec)) {
                 env->gamestate.gameOver = true;
-                env->rewards[0] = -3.0;
+                env->rewards[0] += -0.5;
                 env->terminals[0] = 1;
-
-                env->log.episode_return += env->rewards[0]; 
-                env->log.episode_length += 1.0f; 
-
-                compute_observations(env, true); 
                 // add_log(env);
-                return;
+                //return;
+                env->gamestate.gameOver = true; 
             }
         }
         
         // Check if passed tubes
         for (int i = 0; i < MAX_TUBES; i++) {
-            if (env->tubesPos[i].x < env->floppy.position.x && env->tubes[i/2].active) {
-                env->log.hiScore += 100.0;
-                env->rewards[0] = 1.0;
-                env->tubes[i/2].active = false;
+            if (env->tubesPos[i].x < env->floppy.position.x && env->tubes[i].active) { // /2
+                env->log.score += 100.0;
+                env->tubes[i].active = false; // / 2
                 env->gamestate.superfx = true;
-                env->log.score = env->log.hiScore;
+               // env->log.score = env->log.hiScore;
                 
-                // if (env->log.score > env->log.hiScore) {
-                //     env->log.hiScore = env->log.score;
-                // }
+                if (env->log.score > env->log.hiScore) {
+                    env->log.hiScore = env->log.score;
+                }
             }
         }
         
         // Check bounds
         if (env->floppy.position.y < 0 || env->floppy.position.y > screenHeight) {
             env->gamestate.gameOver = true;
-            env->rewards[0] = 0.0;
+            env->rewards[0] -= 0.5;
 
             env->terminals[0] = 1;
-
-            env->log.episode_return += env->rewards[0]; 
-            env->log.episode_length += 1.0f; 
-
-            add_log(env);
-            compute_observations(env, true); 
+ 
             return;
         }
+
+        env->log.episode_return += env->rewards[0]; 
+        env->log.episode_length += 1.0f; 
+
+        add_log(env);
+        compute_observations(env, true);
         
         // Update observation
         env->observations[0] = env->floppy.position.y / screenHeight;  // Normalize
@@ -504,8 +502,11 @@ void c_step(GameEnv* env) {
 
         //printf("[C] Game over \r\n");
         env->terminals[0] = 1; 
-        env->rewards[0] = 0.0;
-        compute_observations(env, false); 
+        env->log.episode_return += env->rewards[0]; 
+        env->log.episode_length += 1.0f; 
+
+        add_log(env);
+        compute_observations(env, true);
         //action 2 allows the game to reset
         if (IsKeyPressed(KEY_ENTER) || action == 2)
         {
@@ -517,8 +518,9 @@ void c_step(GameEnv* env) {
         if (env->gamestate.gameOver) {
             env->terminals[0] = 1;
             env->rewards[0] = -1.0;
-            add_log(env);  // Log the episode
-            return;  // Don't reset here - let Python handle it
+
+            c_reset(env); 
+
         }
     }
 }

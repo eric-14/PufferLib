@@ -555,6 +555,7 @@ static int assign_to_dict(PyObject* dict, char* key, float value) {
     }
     if(PyDict_SetItemString(dict, key, v) < 0) {
         PyErr_SetString(PyExc_TypeError, "Failed to set log value");
+        printf(" [EnvBinding.h] Failed to set logging params \r\n");
         return 1;
     }
     Py_DECREF(v);

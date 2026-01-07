@@ -8,8 +8,8 @@ import pufferlib
 from pufferlib.ocean.floppy import binding
 
 class Floppy(pufferlib.PufferEnv):
-    def __init__(self, num_envs=4, render_mode=None, log_interval=128, size=5, buf=None, seed=0):
-        self.single_observation_space = gymnasium.spaces.Box(low=0, high=1000,
+    def __init__(self, num_envs=4, render_mode=None, log_interval=20, size=5, buf=None, seed=0, floppy_pos_x=0, floppy_pos_y=0 ):
+        self.single_observation_space = gymnasium.spaces.Box(low=0, high=1,
             shape=(8,), dtype=np.float32)
         print("[Py][Floppy]  __init__ fn")
         self.single_action_space = gymnasium.spaces.Discrete(2)
@@ -19,7 +19,7 @@ class Floppy(pufferlib.PufferEnv):
 
         super().__init__(buf)
         self.c_envs = binding.vec_init(self.observations, self.actions, self.rewards,
-            self.terminals, self.truncations, num_envs, seed, size=size)
+            self.terminals, self.truncations, num_envs, seed, size=size, floppy_pos_x = floppy_pos_x, floppy_pos_y = floppy_pos_y)
         # c_envs = []
         # for i in range(num_envs):
         #     c_env = binding.env_init(

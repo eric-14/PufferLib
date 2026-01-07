@@ -20,11 +20,13 @@ class Squared(pufferlib.PufferEnv):
             self.terminals, self.truncations, num_envs, seed, size=size)
  
     def reset(self, seed=0):
+        print("[Py][reset]"); 
         binding.vec_reset(self.c_envs, seed)
         self.tick = 0
         return self.observations, []
 
     def step(self, actions):
+        print("[Py][step]"); 
         self.tick += 1
 
         self.actions[:] = actions
@@ -38,6 +40,7 @@ class Squared(pufferlib.PufferEnv):
             self.terminals, self.truncations, info)
 
     def render(self):
+        print("[Py][render]"); 
         binding.vec_render(self.c_envs, 0)
 
     def close(self):
