@@ -70,10 +70,13 @@ def make_squared(distance_to_target=3, num_targets=1, buf=None, **kwargs):
 
 def make_floppy(distance_to_target=3, num_targets=1, buf=None, **kwargs):
     print("[Py][Environment] make floppy")
-    from . import sanity
-    env = sanity.Squared(distance_to_target=distance_to_target, num_targets=num_targets, **kwargs)
-    env = pufferlib.EpisodeStats(env)
-    return pufferlib.emulation.GymnasiumPufferEnv(env=env, buf=buf, **kwargs)
+    # from . import sanity
+    from pufferlib.ocean.floppy import floppy 
+    return floppy.Floppy, kwargs 
+    
+    # env = sanity.Squared(distance_to_target=distance_to_target, num_targets=num_targets, **kwargs)
+    # env = pufferlib.EpisodeStats(env)
+    # return pufferlib.emulation.GymnasiumPufferEnv(env=env, buf=buf, **kwargs)
 
 
 def make_bandit(num_actions=10, reward_scale=1, reward_noise=1, buf=None):

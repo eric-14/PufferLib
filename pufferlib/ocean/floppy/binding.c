@@ -3,6 +3,14 @@
 typedef GameEnv Env; 
 #include "../env_binding.h"
 
+#define INIT my_init
+#define RESET c_reset 
+#define STEP c_step 
+#define CLOSE c_close 
+#define RENDER c_render 
+#define LOG my_log 
+#define LOG_TYPE LOG 
+
 
 static int my_log(PyObject* dict, Log* log) {
     // Populate Python dictionary from C Log struct

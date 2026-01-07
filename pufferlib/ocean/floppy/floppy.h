@@ -73,8 +73,7 @@ typedef struct GameState {
 typedef struct GameEnv {
     Log log; 
     Client *client; 
-    unsigned char* observations; 
-    //float *observations; 
+    unsigned char* observations;
     int *actions;
     float *rewards; 
     unsigned char *terminals; 
@@ -114,13 +113,8 @@ void compute_observations(GameEnv *env, bool collided)
     env->observations[0] =  env->floppy.position.x / screenWidth; 
     env->observations[1] =  env->floppy.position.y / screenHeight; 
     // Observations at each iteration of the game 
-    if(!collided)
-    {
-         env->observations[2] = 0; 
-    }else 
-    {
-         env->observations[2] = 1; 
-    }
+    env->observations[2] = collided ? 1 : 0; 
+
 }
 // Unload game variables
 void UnloadGame(void)
@@ -150,11 +144,11 @@ void _game_init(GameEnv *env, int num_envs)
     
    
 
-    env->observations = (unsigned char*)(calloc(NUM_OBS, sizeof(unsigned char))); 
-    env->rewards = (float*)(calloc(1,sizeof(float))); 
+    // env->observations = (float*)(calloc(NUM_OBS, sizeof(float))); 
+    // env->rewards = (float*)(calloc(1,sizeof(float))); 
 
-    env->actions = (int*)(calloc(1,sizeof(int))); 
-    env->terminals = (unsigned char*)(calloc(1,sizeof(unsigned char))); 
+    // env->actions = (int*)(calloc(1,sizeof(int))); 
+    // env->terminals = (unsigned char*)(calloc(1,sizeof(unsigned char))); 
 }
 
 void make_client(GameEnv *env)
@@ -356,15 +350,17 @@ void DrawGame(GameEnv *env)
 
 void add_log(GameEnv* env) {
     // 1. Accumulate per-step metrics
-    env->log.episode_return += env->rewards[0]; // Sum rewards for the episode
-    env->log.episode_length += 1.0f;            // Count steps in the episode
+    // env->log.episode_return += env->rewards[0]; // Sum rewards for the episode
+    // env->log.episode_length += 1.0f;            // Count steps in the episode
 
     // 2. Update overall score/high-score (for your game's logic)
-    env->log.score = env->log.hiScore;
+    //env->log.score = env->log.hiScore;
     //env->log.n += 1.0f;   
     if (env->terminals[0]) {
         // When episode ends, mark for counting
         // But DON'T increment n here - vec_log handles it
+        env->log.episode_return += env->rewards[0]; // Sum rewards for the episode
+        env->log.episode_length += 1.0f;   
         env->log.perf = env->log.hiScore / env->log.goal;
     }  
 }
@@ -396,8 +392,12 @@ void c_reset(GameEnv* env) {
     env->log.episode_return = 0.0f;
     env->log.episode_length = 0.0f;
     env->log.tick = 0;
-    // env->gamestate.gameOver = false;
-    // env->log.tick = 0;
+
+    env->gamestate.gameOver = false;
+    env->terminals[0] = 0; 
+    env->rewards[0] = 0.0; 
+    env->log.tick = 0;
+    compute_observations(env, false); 
     // env->log.score = 0;
     // env->log.episode_return = 0;
     // env->log.episode_length = 0;
@@ -413,11 +413,13 @@ void c_step(GameEnv* env) {
 
    
     env->terminals[0] = 0;
+    env->rewards[0] = 0.0; 
 
-    if(action > 0)
-    {
-        printf("[C][step] action is not zero %d \r\n", action ); 
-    }
+
+    // if(action > 0)
+    // {
+    //     printf("[C][step] action is not zero %d \r\n", action ); 
+    // }
     
   
     if (IsKeyPressed('P')) env->gamestate.pause = !env->gamestate.pause;
@@ -452,8 +454,12 @@ void c_step(GameEnv* env) {
                 env->gamestate.gameOver = true;
                 env->rewards[0] = -3.0;
                 env->terminals[0] = 1;
+
+                env->log.episode_return += env->rewards[0]; 
+                env->log.episode_length += 1.0f; 
+
                 compute_observations(env, true); 
-                add_log(env);
+                // add_log(env);
                 return;
             }
         }
@@ -476,8 +482,13 @@ void c_step(GameEnv* env) {
         // Check bounds
         if (env->floppy.position.y < 0 || env->floppy.position.y > screenHeight) {
             env->gamestate.gameOver = true;
-            env->rewards[0] = -3.0;
+            env->rewards[0] = 0.0;
+
             env->terminals[0] = 1;
+
+            env->log.episode_return += env->rewards[0]; 
+            env->log.episode_length += 1.0f; 
+
             add_log(env);
             compute_observations(env, true); 
             return;
@@ -493,7 +504,7 @@ void c_step(GameEnv* env) {
 
         //printf("[C] Game over \r\n");
         env->terminals[0] = 1; 
-        env->rewards[0] = -1.0;
+        env->rewards[0] = 0.0;
         compute_observations(env, false); 
         //action 2 allows the game to reset
         if (IsKeyPressed(KEY_ENTER) || action == 2)
