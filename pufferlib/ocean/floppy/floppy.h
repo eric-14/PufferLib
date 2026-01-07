@@ -182,9 +182,10 @@ void InitGame(GameEnv *env)
         env->tubes[i+1].rec.width = TUBES_WIDTH;
         env->tubes[i+1].rec.height = 255;
 
-        env->tubes[i/2].active = true;
+        env->tubes[i/2].active = true; // /2
     }
     env->log.score = 0; 
+    env->log.hiScore = 0; 
     env->gamestate.gameOver = false; 
     env->gamestate.superfx = false; 
     env->gamestate.pause = false; 
@@ -252,13 +253,9 @@ void add_log(GameEnv* env) {
     env->log.episode_length += 1.0f;            // Count steps in the episode
 
   //  2. Update overall score/high-score (for your game's logic)
-    env->log.score += env->log.hiScore;
+    env->log.score = env->log.hiScore;
     env->log.n += 1.0f;   
     if (env->terminals[0] == 1) {
-        // When episode ends, mark for counting
-        // But DON'T increment n here - vec_log handles it
-        env->log.episode_return += env->rewards[0]; // Sum rewards for the episode
-        env->log.episode_length += 1.0f;   
         env->log.perf = env->log.hiScore / env->log.goal;
     }  
 }
@@ -298,11 +295,7 @@ void c_reset(GameEnv* env) {
     env->log.score = 0.0; 
     env->log.hiScore = 0.0; 
   
-    compute_observations(env, false); 
-    // env->log.score = 0;
-    // env->log.episode_return = 0;
-    // env->log.episode_length = 0;
-    //env->observations[0] = env->floppy.position.y / screenHeight;
+    compute_observations(env, false);
 }
 
 
@@ -322,17 +315,8 @@ void c_step(GameEnv* env) {
     // Update game state based on action
     if (!env->gamestate.gameOver && !env->gamestate.pause) {
         env->rewards[0] += 1.0; 
-        //manual control 
-        if (IsKeyDown(KEY_SPACE) || action == 1) {
-            env->floppy.position.y -= 1; 
-            env->log.number_of_ups += 1;
-            // env->actions[0] = 1; 
-        
-        }else {
-            env->floppy.position.y += 1;
-        }
-    
-        // Move tubes
+
+         // Move tubes
         for (int i = 0; i < MAX_TUBES; i++) {
             env->tubesPos[i].x -= env->tubesSpeedx;
         }
@@ -342,33 +326,27 @@ void c_step(GameEnv* env) {
             env->tubes[i].rec.x = env->tubesPos[i/2].x;
             env->tubes[i+1].rec.x = env->tubesPos[i/2].x;
         }
+        //manual control 
+        if (IsKeyDown(KEY_SPACE) || action == 1) {
+            env->floppy.position.y -= 3; 
+            env->log.number_of_ups += 1;
+            // env->actions[0] = 1; 
         
+        }else {
+            env->floppy.position.y += 1;
+        }
         // Check collisions
         for (int i = 0; i < MAX_TUBES*2; i++) {
             if (CheckCollisionCircleRec(env->floppy.position, env->floppy.radius, env->tubes[i].rec)) {
                 env->gamestate.gameOver = true;
                 env->rewards[0] += -0.5;
                 env->terminals[0] = 1;
-                // add_log(env);
-                //return;
-                env->gamestate.gameOver = true; 
-            }
-        }
-        
-        // Check if passed tubes
-        for (int i = 0; i < MAX_TUBES; i++) {
-            if (env->tubesPos[i].x < env->floppy.position.x && env->tubes[i].active) { // /2
-                env->log.score += 100.0;
-                env->tubes[i].active = false; // / 2
+            }else if (env->tubesPos[i/2].x < env->floppy.position.x && env->tubes[i/2].active && !env->gamestate.gameOver) { // /2
+                env->log.hiScore += 100.0;
+                env->tubes[i/2].active = false; // / 2
                 env->gamestate.superfx = true;
-               // env->log.score = env->log.hiScore;
-                
-                if (env->log.score > env->log.hiScore) {
-                    env->log.hiScore = env->log.score;
-                }
             }
         }
-        
         // Check bounds
         if (env->floppy.position.y < 0 || env->floppy.position.y > screenHeight) {
             env->gamestate.gameOver = true;
@@ -376,17 +354,14 @@ void c_step(GameEnv* env) {
 
             env->terminals[0] = 1;
  
-            return;
+            //return;
         }
 
         env->log.episode_return += env->rewards[0]; 
         env->log.episode_length += 1.0f; 
 
-        add_log(env);
-        compute_observations(env, true);
-        
         // Update observation
-        env->observations[0] = env->floppy.position.y / screenHeight;  // Normalize
+        //env->observations[0] = env->floppy.position.y / screenHeight;  // Normalize
         add_log(env); 
         compute_observations(env, false); 
     }
@@ -395,8 +370,6 @@ void c_step(GameEnv* env) {
 
         //printf("[C] Game over \r\n");
         env->terminals[0] = 1; 
-        env->log.episode_return += env->rewards[0]; 
-        env->log.episode_length += 1.0f; 
 
         add_log(env);
         compute_observations(env, true);

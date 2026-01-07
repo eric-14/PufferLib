@@ -55,11 +55,9 @@ class Floppy(pufferlib.PufferEnv):
             self.terminals, self.truncations, info)
 
     def render(self):
-        print("[Py][Floppy] render fn")
         binding.vec_render(self.c_envs, 0)
 
     def close(self):
-        print("[Py][Floppy] close fn")
         binding.vec_close(self.c_envs)
 
 if __name__ == '__main__':
