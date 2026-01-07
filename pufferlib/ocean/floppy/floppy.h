@@ -12,7 +12,7 @@
 // Some Defines
 //----------------------------------------------------------------------------------
 
-#define FRAMERATE 40 
+#define FRAMERATE 20 
 #define MAX_TUBES 100
 #define FLOPPY_RADIUS 24
 #define TUBES_WIDTH 80
@@ -41,7 +41,7 @@ typedef struct Log {
     float number_of_ups;     // number of time floppy is moved up 
                             // with this information it is a measure of understanding of game physics                     
     float goal; // the goal the RL should try and achieve 
-}Log; 
+} Log; 
 
 typedef struct Client {
     int screenWidth; 
@@ -141,14 +141,6 @@ void _game_init(GameEnv *env, int num_envs)
     env->tubesSpeedx= 0; 
     env->gamestate.superfx = false; 
     env->log.goal = GOAL; 
-    
-   
-
-    // env->observations = (float*)(calloc(NUM_OBS, sizeof(float))); 
-    // env->rewards = (float*)(calloc(1,sizeof(float))); 
-
-    // env->actions = (int*)(calloc(1,sizeof(int))); 
-    // env->terminals = (unsigned char*)(calloc(1,sizeof(unsigned char))); 
 }
 
 void make_client(GameEnv *env)
@@ -166,7 +158,7 @@ void make_client(GameEnv *env)
 void InitGame(GameEnv *env)
 {
    
-    printf("[C][InitGame] Fn \r\n");
+   // printf("[C][InitGame] Fn \r\n");
 
     env->floppy.radius = FLOPPY_RADIUS;
     env->floppy.position = (Vector2){80, screenHeight/2 - env->floppy.radius};
@@ -198,79 +190,11 @@ void InitGame(GameEnv *env)
     env->gamestate.pause = false; 
 
     compute_observations(env, false); 
-
-    // score = 0;
-
-    // gameOver = false;
-    // superfx = false;
-    // pause = false;
 }
 
 void UpdateGame(GameEnv *env)
 {
     printf("[C][update] start update function \r\n"); 
-    // if (!env->gamestate.gameOver)
-    // {
-    //     if (IsKeyPressed('P')) env->gamestate.pause = !env->gamestate.pause;
-
-    //     if (!env->gamestate.pause)
-    //     {
-    //         for (int i = 0; i < MAX_TUBES; i++) env->tubesPos[i].x -= env->tubesSpeedx;
-
-    //         for (int i = 0; i < MAX_TUBES*2; i += 2)
-    //         {
-    //             env->tubes[i].rec.x = env->tubesPos[i/2].x;
-    //             env->tubes[i+1].rec.x = env->tubesPos[i/2].x;
-    //         }
-
-    //         if (IsKeyDown(KEY_SPACE) && !env->gamestate.gameOver) {
-    //             env->floppy.position.y -= 3; 
-    //             env->actions[0] = 1; 
-            
-    //         }
-    //         else {
-    //             env->floppy.position.y += 1; 
-    //             env->actions[0] = 0; //no action taken 
-            
-    //         };
-
-    //         // Check Collisions
-    //         for (int i = 0; i < MAX_TUBES*2; i++)
-    //         {
-    //             if (CheckCollisionCircleRec(env->floppy.position, env->floppy.radius, env->tubes[i].rec))
-    //             {
-    //                 env->gamestate.gameOver = true;
-    //                 env->gamestate.pause = false;
-    //                 env->actions[0] = 0; 
-    //                 env->log.rewards -= 3; //heavily penalized the model for colliding with objects
-    //             }
-    //             else if ((env->tubesPos[i/2].x < env->floppy.position.x) && env->tubes[i/2].active && !env->gamestate.gameOver)
-    //             {
-    //                 env->log.score += 100.0;
-    //                 env->log.rewards += 1.0; //reward the agent when it increments the value 
-    //                 env->tubes[i/2].active = false;
-    //                 printf("[SCORE] updating score value %f \r\n", env->log.score);
-
-    //                 env->gamestate.superfx = true;
-
-    //                 if (env->log.score > env->log.hiScore) env->log.hiScore = env->log.score;
-    //                 //c_step(env); 
-    //             }
-    //         }
-    //     }
-
-    // }
-    // else
-    // {
-    //     printf("[C] Game over \r\n"); 
-    //     if (IsKeyPressed(KEY_ENTER))
-    //     {
-    //         printf("[C] Fn key pressed Enter Game over \r\n"); 
-    //         InitGame(env);
-    //         env->gamestate.gameOver = false;
-    //     }
-    // }
-    // printf("[C][update] update end of function \r\n"); 
 }
 
 
@@ -322,38 +246,15 @@ void DrawGame(GameEnv *env)
    
 }
 
-// void add_log(GameEnv* env) {
-//     env->log.perf += env->log.score;  
-//     env->log.score += env->log.score;
-//     env->log.episode_length += env->log.tick;
-//     env->log.episode_return += env->log.score;
-//     env->log.n++;
-// }
-
-// void add_log(GameEnv* env) {
-//     // env->log.perf += env->log.score / env->log.goal;  // Normalized performance 0-1
-//     // env->log.score += env->rewards[0];
-//     // env->log.episode_length += 1;
-//     // env->log.episode_return += env->rewards[0];
-//     // env->log.n++;
-//    // printf("[C][add_log] Fn \r\n");
-//     env->log.perf += env->log.score / env->log.goal;
-//     env->log.score += env->log.hiScore;  // Keep current score
-//     env->log.episode_length += env->log.tick;
-//     env->log.episode_return += env->rewards[0];   // Sum of rewards
-//     env->log.n += 1.0f;  // Episode counter
-// }
-
-
 void add_log(GameEnv* env) {
     // 1. Accumulate per-step metrics
-    // env->log.episode_return += env->rewards[0]; // Sum rewards for the episode
-    // env->log.episode_length += 1.0f;            // Count steps in the episode
+    env->log.episode_return += env->rewards[0]; // Sum rewards for the episode
+    env->log.episode_length += 1.0f;            // Count steps in the episode
 
-    // 2. Update overall score/high-score (for your game's logic)
-    //env->log.score = env->log.hiScore;
-    //env->log.n += 1.0f;   
-    if (env->terminals[0]) {
+  //  2. Update overall score/high-score (for your game's logic)
+    env->log.score += env->log.hiScore;
+    env->log.n += 1.0f;   
+    if (env->terminals[0] == 1) {
         // When episode ends, mark for counting
         // But DON'T increment n here - vec_log handles it
         env->log.episode_return += env->rewards[0]; // Sum rewards for the episode
@@ -376,13 +277,13 @@ void UpdateDrawFrame(GameEnv *env)
 }
 
 void c_reset(GameEnv* env) {
-    printf("[C][c_reset] Fn ep_length > %f ep_return > %f terminals > %d reward > %f action > %d \r\n",
-        env->log.episode_length, 
-        env->log.episode_return, 
-        env->terminals[0], 
-        env->rewards[0], 
-        env->actions[0]
-        );
+    // printf("[C][c_reset] Fn ep_length > %f ep_return > %f terminals > %d reward > %f action > %d \r\n",
+    //     env->log.episode_length, 
+    //     env->log.episode_return, 
+    //     env->terminals[0], 
+    //     env->rewards[0], 
+    //     env->actions[0]
+    //     );
 
     env->gamestate.gameOver = true;
     InitGame(env);
@@ -416,14 +317,6 @@ void c_step(GameEnv* env) {
     //env->rewards[0] = 0.0; 
 
     //printf("[C][step] action is not zero %d \r\n", action ); 
-
-
-    // if(action > 0)
-    // {
-    //     
-    // }
-    
-  
     if (IsKeyPressed('P')) env->gamestate.pause = !env->gamestate.pause;
     
     // Update game state based on action
