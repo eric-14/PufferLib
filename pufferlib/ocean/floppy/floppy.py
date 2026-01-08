@@ -10,7 +10,7 @@ from pufferlib.ocean.floppy import binding
 class Floppy(pufferlib.PufferEnv):
     def __init__(self, num_envs=4, render_mode=None, log_interval=128, size=5, buf=None, seed=0, floppy_pos_x=0, floppy_pos_y=0 ):
         self.single_observation_space = gymnasium.spaces.Box(low=0, high=1,
-            shape=(25,), dtype=np.float32)
+            shape=(110,), dtype=np.float32)
         print("[Py][Floppy]  __init__ fn")
         self.single_action_space = gymnasium.spaces.Discrete(2)
         self.render_mode = render_mode

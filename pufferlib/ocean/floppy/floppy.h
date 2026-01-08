@@ -115,6 +115,12 @@ void compute_observations(GameEnv *env, bool collided)
     // Observations at each iteration of the game 
     env->observations[2] = collided ? 1 : 0; 
 
+    for(int i = 0; i < MAX_TUBES; i++)
+    {
+        env->observations[3+1 + i] =   env->tubesPos[i].x; 
+        env->observations[4+1 + i] =   env->tubesPos[i].y; 
+    }
+
 }
 // Unload game variables
 void UnloadGame(void)
