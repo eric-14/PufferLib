@@ -13,13 +13,15 @@ int main(void)
     InitGame(&env);
     make_client(&env); 
     SetTargetFPS(FRAMERATE);
-   
+  
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         //UpdateDrawFrame();
         c_step(&env); 
         c_render(&env); 
+         
     }
+    
     
    
     UnloadGame();         
