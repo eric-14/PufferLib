@@ -2,13 +2,8 @@
 
 int main(void)
 {
-    
     // InitWindow(screenWidth, screenHeight, "classic game: floppy");
-
-    
-    
     GameEnv env; 
-  
     env.actions = (int*)calloc(1, sizeof(int)); 
     env.rewards = (float*)calloc(1, sizeof(float));
     env.terminals = (unsigned char*)calloc(1, sizeof(unsigned char));
@@ -17,13 +12,10 @@ int main(void)
 
     InitGame(&env);
     make_client(&env); 
-
-
     SetTargetFPS(FRAMERATE);
    
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-        
         //UpdateDrawFrame();
         c_step(&env); 
         c_render(&env); 

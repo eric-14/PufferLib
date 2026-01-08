@@ -304,23 +304,18 @@ void c_step(GameEnv* env) {
     env->log.tick += 1;
    // printf("[C][step] action is not zero %d \r\n", env->log.tick ); 
     int action = env->actions[0];
-
-   
     env->terminals[0] = 0;
     //env->rewards[0] = 0.0; 
-
     //printf("[C][step] action is not zero %d \r\n", action ); 
     if (IsKeyPressed('P')) env->gamestate.pause = !env->gamestate.pause;
     
     // Update game state based on action
     if (!env->gamestate.gameOver && !env->gamestate.pause) {
-        env->rewards[0] += 1.0; 
-
+        
          // Move tubes
         for (int i = 0; i < MAX_TUBES; i++) {
             env->tubesPos[i].x -= env->tubesSpeedx;
         }
-        
         // Update tube rectangles
         for (int i = 0; i < MAX_TUBES*2; i += 2) {
             env->tubes[i].rec.x = env->tubesPos[i/2].x;
@@ -331,7 +326,6 @@ void c_step(GameEnv* env) {
             env->floppy.position.y -= 3; 
             env->log.number_of_ups += 1;
             // env->actions[0] = 1; 
-        
         }else {
             env->floppy.position.y += 1;
         }
@@ -339,10 +333,11 @@ void c_step(GameEnv* env) {
         for (int i = 0; i < MAX_TUBES*2; i++) {
             if (CheckCollisionCircleRec(env->floppy.position, env->floppy.radius, env->tubes[i].rec)) {
                 env->gamestate.gameOver = true;
-                env->rewards[0] += -0.5;
+                env->rewards[0] -= 0.5;
                 env->terminals[0] = 1;
             }else if (env->tubesPos[i/2].x < env->floppy.position.x && env->tubes[i/2].active && !env->gamestate.gameOver) { // /2
                 env->log.hiScore += 100.0;
+                env->rewards[0] += 1.0; 
                 env->tubes[i/2].active = false; // / 2
                 env->gamestate.superfx = true;
             }
@@ -351,9 +346,7 @@ void c_step(GameEnv* env) {
         if (env->floppy.position.y < 0 || env->floppy.position.y > screenHeight) {
             env->gamestate.gameOver = true;
             env->rewards[0] -= 0.5;
-
             env->terminals[0] = 1;
- 
             //return;
         }
 
